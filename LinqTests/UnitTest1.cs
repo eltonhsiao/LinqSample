@@ -169,6 +169,20 @@ namespace LinqTests
             };
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void take_top_2_employees_salary_bigger_than_150()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonTakeWhile(2, e => e.MonthSalary > 150);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Kevin", Role=RoleType.Manager, MonthSalary=380, Age=55, WorkingYear=2.6} ,
+                new Employee{Name="Bas", Role=RoleType.Engineer, MonthSalary=280, Age=36, WorkingYear=2.6}
+            };
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
@@ -287,8 +301,22 @@ internal static class YourOwnLinq
 
         while (index < source.Count())
         {
-            yield return source.Skip(index).Take(count).Sum(sum);
+            yield return source.EltonSkip(index).EltonTake(count).Sum(sum);
             index += count;
+        }
+    }
+
+    public static IEnumerable<T> EltonTakeWhile<T>(this IEnumerable<T> source, int count, Func<T, bool> predicate)
+    {
+        var enumerator = source.GetEnumerator();
+        int index = 0;
+        while (index < count && enumerator.MoveNext())
+        {
+            if (predicate(enumerator.Current))
+            {
+                yield return enumerator.Current;
+                index++;
+            }
         }
     }
 }
