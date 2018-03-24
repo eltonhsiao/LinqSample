@@ -3,6 +3,7 @@ using ExpectedObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace LinqTests
 {
@@ -113,12 +114,59 @@ namespace LinqTests
             var employees = RepositoryFactory.GetEmployees();
             var actual = employees.EltonWhere(x => x.Age < 25).EltonSelect(x => $"{x.Role}:{x.Name}");
 
+            foreach (var a in actual)
+            {
+                Console.WriteLine(a);
+            }
             var expected = new List<string>
             {
                 "OP:Andy",
                 "Engineer:Frank"
             };
 
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+
+        [TestMethod]
+        public void take_first_2_employees()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonTake(2);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Joe", Role=RoleType.Engineer, MonthSalary=100, Age=44, WorkingYear=2.6 } ,
+                new Employee{Name="Tom", Role=RoleType.Engineer, MonthSalary=140, Age=33, WorkingYear=2.6}
+            };
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+
+        [TestMethod]
+        public void skip_6_employees()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonSkip(6);
+
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Frank", Role=RoleType.Engineer, MonthSalary=120, Age=16, WorkingYear=2.6} ,
+                new Employee{Name="Joey", Role=RoleType.Engineer, MonthSalary=250, Age=40, WorkingYear=2.6}
+            };
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
+
+        [TestMethod]
+        public void employees_salary()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonSum(p => p.MonthSalary, 3);
+
+            var expected = new List<int>()
+            {
+                620,
+                540,
+                370
+            };
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
     }
@@ -174,8 +222,10 @@ internal static class YourOwnLinq
     {
         foreach (var s in source)
         {
+            Console.WriteLine("Where execute");
             if (predicate(s))
             {
+                Console.WriteLine("Where Find then Return");
                 yield return s;
             }
         }
@@ -199,7 +249,46 @@ internal static class YourOwnLinq
     {
         foreach (var item in source)
         {
+            Console.WriteLine("Select Find then Return");
             yield return selector(item);
+        }
+    }
+
+    public static IEnumerable<T> EltonTake<T>(this IEnumerable<T> source, int count)
+    {
+        var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (count <= 0)
+            {
+                yield break;
+            }
+
+            yield return enumerator.Current;
+            count--;
+        }
+    }
+
+    public static IEnumerable<T> EltonSkip<T>(this IEnumerable<T> source, int count)
+    {
+        var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (count <= 0)
+                yield return enumerator.Current;
+            else
+                count--;
+        }
+    }
+
+    public static IEnumerable<int> EltonSum<T>(this IEnumerable<T> source, Func<T, int> sum, int count)
+    {
+        int index = 0;
+
+        while (index < source.Count())
+        {
+            yield return source.Skip(index).Take(count).Sum(sum);
+            index += count;
         }
     }
 }
