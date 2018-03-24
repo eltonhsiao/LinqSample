@@ -106,6 +106,21 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void find_age_younger_than_25_employees()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonWhere(x => x.Age < 25).EltonSelect(x => $"{x.Role}:{x.Name}");
+
+            var expected = new List<string>
+            {
+                "OP:Andy",
+                "Engineer:Frank"
+            };
+
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
@@ -151,14 +166,6 @@ internal static class WithoutLinq
             yield return act(url);
         }
     }
-
-    public static IEnumerable<TResult> EltonSelect<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
-    {
-        foreach (var item in source)
-        {
-            yield return selector(item);
-        }
-    }
 }
 
 internal static class YourOwnLinq
@@ -185,6 +192,14 @@ internal static class YourOwnLinq
             }
 
             index++;
+        }
+    }
+
+    public static IEnumerable<TResult> EltonSelect<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, TResult> selector)
+    {
+        foreach (var item in source)
+        {
+            yield return selector(item);
         }
     }
 }
