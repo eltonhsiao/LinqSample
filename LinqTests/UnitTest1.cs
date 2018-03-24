@@ -1,6 +1,5 @@
 ﻿using System;
 using ExpectedObjects;
-using LinqTests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +13,7 @@ namespace LinqTests
         public void find_products_that_price_between_200_and_500()
         {
             var products = RepositoryFactory.GetProducts();
-            var actual = products.FindProduct(p => p.IsTopSaleProduct());
+            var actual = products.Find(p => p.IsTopSaleProduct());
 
             var expected = new List<Product>()
             {
@@ -39,16 +38,23 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(actual);
         }
+
+        [TestMethod]
+        public void find_employees_older_than_30()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.Find(p => p.IsOrderThanThirty());
+        }
     }
 }
 
 internal static class WithoutLinq
 {
-    public static IEnumerable<Product> FindProduct(this IEnumerable<Product> products, Func<Product, bool> filter)
+    public static IEnumerable<T> Find<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
-        foreach (var p in products)
+        foreach (var p in source)
         {
-            if (filter(p))
+            if (predicate(p))
             {
                 yield return p;
             }
