@@ -368,7 +368,7 @@ internal static class EltonLinq
     public static TSource EltonSingle<TSource>(this IEnumerable<TSource> employees)
     {
         var enumerator = employees.GetEnumerator();
-        if (enumerator.MoveNext())
+        if (!enumerator.MoveNext())
             throw new Exception();
         TSource current = enumerator.Current;
         if (!enumerator.MoveNext())
