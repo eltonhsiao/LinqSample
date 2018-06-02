@@ -227,10 +227,17 @@ namespace LinqTests
         }
 
         [TestMethod]
-        public void Single_Return()
+        public void Single_Role_Manager_Return_One_Record()
         {
             var employees = RepositoryFactory.GetEmployees();
             Assert.AreEqual(RoleType.Manager, employees.EltonSingle(employee => employee.Role == RoleType.Manager).Role);
+        }
+
+        [TestMethod]
+        public void Single_Role_Manager_Return_One_Record1()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.AreEqual(RoleType.Manager, employees.Where(employee => employee.Role == RoleType.Manager).EltonSingle().Role);
         }
     }
 }
@@ -356,6 +363,17 @@ internal static class EltonLinq
         {
             yield return act(url);
         }
+    }
+
+    public static TSource EltonSingle<TSource>(this IEnumerable<TSource> employees)
+    {
+        var enumerator = employees.GetEnumerator();
+        if (enumerator.MoveNext())
+            throw new Exception();
+        TSource current = enumerator.Current;
+        if (!enumerator.MoveNext())
+            return current;
+        throw new Exception();
     }
 
     public static TSource EltonSingle<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> predicate)
