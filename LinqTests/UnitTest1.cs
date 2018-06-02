@@ -270,19 +270,41 @@ namespace LinqTests
 
             expected.ToExpectedObject().ShouldEqual(younger.ToList());
         }
+
+        [TestMethod]
+        public void Contains_Test()
+        {
+            var colorBalls = RepositoryFactory.GetBalls();
+            var luckyBall = new ColorBall() { Color = Color.Purple, Size = "S", Prize = 500 };
+
+            Assert.IsTrue(colorBalls.EltonContains(luckyBall, new ColorBallComparer()));
+        }
     }
 }
 
 internal static class EltonLinq
 {
-    public static IEnumerable<TSource> EltonDistinct<TSource>(this IEnumerable<TSource> employees,
-        IEqualityComparer<TSource> equalityComparer)
+    public static bool EltonContains<T>(this IEnumerable<T> source, T target, IEqualityComparer<T> equalityComparer)
     {
-        var enumerator = employees.GetEnumerator();
-        var roleHashSet = new HashSet<TSource>(equalityComparer);
+        var enumerator = source.GetEnumerator();
+
         while (enumerator.MoveNext())
         {
-            if (roleHashSet.Add(enumerator.Current))
+            if (equalityComparer.Equals(enumerator.Current, target))
+                return true;
+        }
+
+        return false;
+    }
+
+    public static IEnumerable<TSource> EltonDistinct<TSource>(this IEnumerable<TSource> source,
+        IEqualityComparer<TSource> equalityComparer)
+    {
+        var enumerator = source.GetEnumerator();
+        var hashSet = new HashSet<TSource>(equalityComparer);
+        while (enumerator.MoveNext())
+        {
+            if (hashSet.Add(enumerator.Current))
                 yield return enumerator.Current;
         }
     }
@@ -430,6 +452,7 @@ internal static class EltonLinq
         TSource current = enumerator.Current;
         if (!enumerator.MoveNext())
             return current;
+
         throw new Exception();
     }
 
