@@ -254,6 +254,22 @@ namespace LinqTests
             var actual = employees.EltonDistinct(new EmployeeComparer());
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void Default_If_Empty()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var younger = employees.EltonWhere(e => e.Age <= 15).EltonDefaultIfEmpty(new Employee() { Name = "Lulu" });
+            var expected = new List<Employee>()
+            {
+                new Employee()
+                {
+                    Name = "Lulu"
+                }
+            };
+
+            expected.ToExpectedObject().ShouldEqual(younger.ToList());
+        }
     }
 }
 
@@ -297,6 +313,20 @@ internal static class EltonLinq
         }
 
         return default(T);
+    }
+
+    public static IEnumerable<T> EltonDefaultIfEmpty<T>(this IEnumerable<T> source, T defaultInput)
+    {
+        var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+            yield return defaultInput;
+        else
+        {
+            do
+            {
+                yield return enumerator.Current;
+            } while (enumerator.MoveNext());
+        }
     }
 
     public static bool EltonAny<T>(this IEnumerable<T> source)
