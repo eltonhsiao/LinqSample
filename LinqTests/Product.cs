@@ -6,10 +6,5 @@
         public int Price { get; set; }
         public int Cost { get; set; }
         public string Supplier { get; set; }
-
-        public bool IsTopSaleProduct()
-        {
-            return Price >= 200 && Price <= 500 && Cost > 30;
-        }
     }
 }

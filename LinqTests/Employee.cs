@@ -7,10 +7,5 @@
         public int MonthSalary { get; set; }
         public int Age { get; set; }
         public double WorkingYear { get; set; }
-
-        public bool IsOrderThanThirty()
-        {
-            return Age > 30;
-        }
     }
 }

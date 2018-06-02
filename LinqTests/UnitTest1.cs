@@ -13,7 +13,7 @@ namespace LinqTests
         public void find_products_that_price_between_200_and_500()
         {
             var products = RepositoryFactory.GetProducts();
-            var actual = products.Find(p => p.IsTopSaleProduct());
+            var actual = products.EltonWhere(p => p.Price >= 200 && p.Price <= 500 && p.Cost > 30);
 
             var expected = new List<Product>()
             {
@@ -28,7 +28,7 @@ namespace LinqTests
         public void find_products_that_price_between_200_and_500_with_LINQ()
         {
             var products = RepositoryFactory.GetProducts();
-            var actual = products.Where(p => p.Price >= 200 && p.Price <= 500 && p.Cost > 30).ToList();
+            var actual = products.EltonWhere(p => p.Price >= 200 && p.Price <= 500 && p.Cost > 30).ToList();
 
             var expected = new List<Product>()
             {
@@ -43,7 +43,7 @@ namespace LinqTests
         public void find_employees_older_than_30()
         {
             var employees = RepositoryFactory.GetEmployees();
-            var actual = employees.Find(p => p.IsOrderThanThirty());
+            var actual = employees.EltonWhere(p => p.Age > 30);
 
             var expected = new List<Employee>()
             {
@@ -61,7 +61,7 @@ namespace LinqTests
         public void find_employees_older_than_30_and_index_bigger_than_1()
         {
             var employees = RepositoryFactory.GetEmployees();
-            var actual = employees.EltonWhere((e, index) => e.IsOrderThanThirty() && index > 1);
+            var actual = employees.EltonWhere((e, index) => e.Age > 30 && index > 1);
 
             var expected = new List<Employee>()
             {
@@ -113,10 +113,11 @@ namespace LinqTests
             var employees = RepositoryFactory.GetEmployees();
             var actual = employees.EltonWhere(x => x.Age < 25).EltonSelect(x => $"{x.Role}:{x.Name}");
 
-            foreach (var a in actual)
-            {
-                Console.WriteLine(a);
-            }
+            //trace callback log
+            //foreach (var a in actual)
+            //{
+            //    Console.WriteLine(a);
+            //}
             var expected = new List<string>
             {
                 "OP:Andy",
@@ -252,10 +253,10 @@ internal static class YourOwnLinq
     {
         foreach (var s in source)
         {
-            Console.WriteLine("Where execute");
+            //Console.WriteLine("Where execute");
             if (predicate(s))
             {
-                Console.WriteLine("Where Find then Return");
+                //Console.WriteLine("Where Find then Return");
                 yield return s;
             }
         }
@@ -279,7 +280,7 @@ internal static class YourOwnLinq
     {
         foreach (var item in source)
         {
-            Console.WriteLine("Select Find then Return");
+            //Console.WriteLine("Select Find then Return");
             yield return selector(item);
         }
     }
