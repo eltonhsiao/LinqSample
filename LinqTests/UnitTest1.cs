@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using LinqTests;
 
 namespace LinqTests
 {
@@ -224,10 +225,17 @@ namespace LinqTests
             var employees = RepositoryFactory.GetEmployees();
             Assert.AreEqual("Tom", employees.EltonFirst(e => e.MonthSalary > 100).Name);
         }
+
+        [TestMethod]
+        public void Single_Return()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.AreEqual(RoleType.Manager, employees.EltonSingle(employee => employee.Role == RoleType.Manager).Role);
+        }
     }
 }
 
-internal static class WithoutLinq
+internal static class EltonLinq
 {
     public static T EltonFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
@@ -240,7 +248,7 @@ internal static class WithoutLinq
             }
         }
 
-        throw new Exception();
+        throw new InvalidOperationException();
     }
 
     public static T EltonFirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate)
@@ -257,9 +265,9 @@ internal static class WithoutLinq
         return default(T);
     }
 
-    public static bool EltonAny<T>(this IEnumerable<T> Source)
+    public static bool EltonAny<T>(this IEnumerable<T> source)
     {
-        return Source.GetEnumerator().MoveNext();
+        return source.GetEnumerator().MoveNext();
     }
 
     public static bool EltonAny<T>(this IEnumerable<T> source, Func<T, bool> predicate)
@@ -349,10 +357,25 @@ internal static class WithoutLinq
             yield return act(url);
         }
     }
-}
 
-internal static class YourOwnLinq
-{
+    public static TSource EltonSingle<TSource>(this IEnumerable<TSource> employees, Func<TSource, bool> predicate)
+    {
+        TSource e = default(TSource);
+        foreach (var employee in employees)
+        {
+            if (predicate(employee))
+            {
+                if (e != null)
+                {
+                    throw new InvalidOperationException();
+                }
+                e = employee;
+            }
+        }
+
+        return e == null ? throw new InvalidOperationException() : e;
+    }
+
     public static IEnumerable<T> EltonWhere<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
         foreach (var s in source)
