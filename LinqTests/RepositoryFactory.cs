@@ -54,5 +54,32 @@ namespace LinqTests
                 new ColorBall{Color=Color.Yellow, Size="M", Prize=500},
             };
         }
+
+        public static IEnumerable<ColorBall> GetAnotherBalls()
+        {
+            return new List<ColorBall>
+            {
+                new ColorBall{Color=Color.Blue, Size="L", Prize=200},
+                new ColorBall{Color=Color.Purple, Size="L", Prize=350},
+                new ColorBall{Color=Color.Yellow, Size="S", Prize=300},
+                new ColorBall{Color=Color.Purple, Size="S", Prize=500},
+                new ColorBall{Color=Color.Purple, Size="L", Prize=450},
+                new ColorBall{Color=Color.Yellow, Size="L", Prize=500},
+            };
+        }
+
+        public static IEnumerable<ColorBall> GetMoreBalls()
+        {
+            return new List<ColorBall>
+            {
+                new ColorBall{Color=Color.Blue, Size="L", Prize=200},
+                new ColorBall{Color=Color.Purple, Size="L", Prize=350},
+                new ColorBall{Color=Color.Yellow, Size="S", Prize=300},
+                new ColorBall{Color=Color.Purple, Size="S", Prize=500},
+                new ColorBall{Color=Color.Purple, Size="L", Prize=450},
+                new ColorBall{Color=Color.Yellow, Size="M", Prize=500},
+                new ColorBall{Color=Color.Yellow, Size="S", Prize=300},
+            };
+        }
     }
 }

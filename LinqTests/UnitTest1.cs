@@ -279,11 +279,54 @@ namespace LinqTests
 
             Assert.IsTrue(colorBalls.EltonContains(luckyBall, new ColorBallComparer()));
         }
+
+        [TestMethod]
+        public void SequenceEqual_Test1()
+        {
+            var balls = RepositoryFactory.GetBalls();
+            var moreBalls = RepositoryFactory.GetMoreBalls();
+
+            Assert.IsFalse(balls.EltonSequenceEqual(moreBalls, new ColorBallComparer()));
+        }
+
+        [TestMethod]
+        public void SequenceEqual_Test2()
+        {
+            var balls = RepositoryFactory.GetBalls();
+            var anotherBalls = RepositoryFactory.GetAnotherBalls();
+
+            Assert.IsFalse(balls.EltonSequenceEqual(anotherBalls, new ColorBallComparer()));
+        }
     }
 }
 
 internal static class EltonLinq
 {
+    public static bool EltonSequenceEqual<T>(this IEnumerable<T> source, IEnumerable<T> target, IEqualityComparer<T> equalityComparer)
+    {
+        var enumeratorX = source.GetEnumerator();
+        var enumeratorY = target.GetEnumerator();
+
+        while (enumeratorX.MoveNext())
+        {
+            if (!enumeratorY.MoveNext() || !equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
+                return false;
+        }
+
+        return !enumeratorY.MoveNext();
+
+        //while (enumeratorX.MoveNext() && enumeratorY.MoveNext())
+        //{
+        //    if (!equalityComparer.Equals(enumeratorX.Current, enumeratorY.Current))
+        //        return false;
+        //}
+
+        //if (enumeratorX.MoveNext() || enumeratorY.MoveNext())
+        //    return false;
+
+        //return true;
+    }
+
     public static bool EltonContains<T>(this IEnumerable<T> source, T target, IEqualityComparer<T> equalityComparer)
     {
         var enumerator = source.GetEnumerator();
