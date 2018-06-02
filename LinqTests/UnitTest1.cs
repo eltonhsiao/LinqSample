@@ -208,6 +208,14 @@ namespace LinqTests
             var actual = employees.EltonAny(x => x.MonthSalary > 500);
             Assert.IsFalse(actual);
         }
+
+        [TestMethod]
+        public void All_Employees_Salary_MoreThan_200()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonAll(x => x.MonthSalary > 200);
+            Assert.IsFalse(actual);
+        }
     }
 }
 
@@ -218,13 +226,15 @@ internal static class WithoutLinq
         return Source.GetEnumerator().MoveNext();
     }
 
-    public static bool EltonAny<T>(this IEnumerable<T> Source, Func<T, bool> predicate)
+    public static bool EltonAny<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
-        var enumerator = Source.GetEnumerator();
+        var enumerator = source.GetEnumerator();
         while (enumerator.MoveNext())
         {
             if (predicate(enumerator.Current))
+            {
                 return true;
+            }
         }
 
         return false;
@@ -237,6 +247,30 @@ internal static class WithoutLinq
         //}
 
         //return false;
+    }
+
+    public static bool EltonAll<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (!predicate(enumerator.Current))
+            {
+                return false;
+            }
+        }
+
+        return true;
+
+        //foreach (var s in source)
+        //{
+        //    if (!predicate(s))
+        //    {
+        //        return false;
+        //    }
+        //}
+
+        //return true;
     }
 
     public static IEnumerable<T> Find<T>(this IEnumerable<T> source, Func<T, bool> predicate)
