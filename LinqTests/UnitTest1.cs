@@ -200,11 +200,45 @@ namespace LinqTests
             };
             expected.ToExpectedObject().ShouldEqual(actual.ToList());
         }
+
+        [TestMethod]
+        public void Any_Employees_Salary_MoreThan_500()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonAny(x => x.MonthSalary > 500);
+            Assert.IsFalse(actual);
+        }
     }
 }
 
 internal static class WithoutLinq
 {
+    public static bool EltonAny<T>(this IEnumerable<T> Source)
+    {
+        return Source.GetEnumerator().MoveNext();
+    }
+
+    public static bool EltonAny<T>(this IEnumerable<T> Source, Func<T, bool> predicate)
+    {
+        var enumerator = Source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (predicate(enumerator.Current))
+                return true;
+        }
+
+        return false;
+        //foreach (var s in Source)
+        //{
+        //    if (predicate(s))
+        //    {
+        //        return true;
+        //    }
+        //}
+
+        //return false;
+    }
+
     public static IEnumerable<T> Find<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
         foreach (var s in source)
