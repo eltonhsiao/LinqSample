@@ -1,5 +1,22 @@
-﻿namespace LinqTests
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+
+namespace LinqTests
 {
+    internal class EmployeeComparer : IEqualityComparer<Employee>
+    {
+        public bool Equals(Employee x, Employee y)
+        {
+            return x.Role == y.Role;
+        }
+
+        public int GetHashCode(Employee obj)
+        {
+            return obj.Role.GetHashCode();
+        }
+    }
+
     internal class Employee
     {
         public string Name { get; set; }

@@ -239,11 +239,38 @@ namespace LinqTests
             var employees = RepositoryFactory.GetEmployees();
             Assert.AreEqual(RoleType.Manager, employees.Where(employee => employee.Role == RoleType.Manager).EltonSingle().Role);
         }
+
+        [TestMethod]
+        public void Distinct_Employees_Role()
+        {
+            var expected = new List<Employee>()
+            {
+                new Employee{Name="Joe", Role=RoleType.Engineer, MonthSalary=100, Age=44, WorkingYear=2.6 } ,
+                new Employee{Name="Kevin", Role=RoleType.Manager, MonthSalary=380, Age=55, WorkingYear=2.6} ,
+                new Employee{Name="Andy", Role=RoleType.OP, MonthSalary=80, Age=22, WorkingYear=2.6}
+            };
+
+            var employees = RepositoryFactory.GetEmployees();
+            var actual = employees.EltonDistinct(new EmployeeComparer());
+            expected.ToExpectedObject().ShouldEqual(actual.ToList());
+        }
     }
 }
 
 internal static class EltonLinq
 {
+    public static IEnumerable<TSource> EltonDistinct<TSource>(this IEnumerable<TSource> employees,
+        IEqualityComparer<TSource> equalityComparer)
+    {
+        var enumerator = employees.GetEnumerator();
+        var roleHashSet = new HashSet<TSource>(equalityComparer);
+        while (enumerator.MoveNext())
+        {
+            if (roleHashSet.Add(enumerator.Current))
+                yield return enumerator.Current;
+        }
+    }
+
     public static T EltonFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate)
     {
         var enumerator = source.GetEnumerator();
