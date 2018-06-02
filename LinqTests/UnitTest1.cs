@@ -3,6 +3,7 @@ using ExpectedObjects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace LinqTests
 {
@@ -216,11 +217,46 @@ namespace LinqTests
             var actual = employees.EltonAll(x => x.MonthSalary > 200);
             Assert.IsFalse(actual);
         }
+
+        [TestMethod]
+        public void Find_First_Employees_Salary_MoreThan_100_Default_Tom()
+        {
+            var employees = RepositoryFactory.GetEmployees();
+            Assert.AreEqual("Tom", employees.EltonFirst(e => e.MonthSalary > 100).Name);
+        }
     }
 }
 
 internal static class WithoutLinq
 {
+    public static T EltonFirst<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (predicate(enumerator.Current))
+            {
+                return enumerator.Current;
+            }
+        }
+
+        throw new Exception();
+    }
+
+    public static T EltonFirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate)
+    {
+        var enumerator = source.GetEnumerator();
+        while (enumerator.MoveNext())
+        {
+            if (predicate(enumerator.Current))
+            {
+                return enumerator.Current;
+            }
+        }
+
+        return default(T);
+    }
+
     public static bool EltonAny<T>(this IEnumerable<T> Source)
     {
         return Source.GetEnumerator().MoveNext();
